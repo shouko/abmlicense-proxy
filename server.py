@@ -42,7 +42,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                 return self.send(200, key)
             except Exception as e:
                 print(e)
-                return self.send(400, 'Bad Request')
+
+        return self.send(400, 'Bad Request')
 
 def run():
     server = ('127.0.0.1', 8088)
