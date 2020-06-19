@@ -1,4 +1,3 @@
-
 import struct
 import hmac
 import hashlib

@@ -5,6 +5,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from abm_helper import AbmClient
 
 abmc = AbmClient()
+key_cache = {}
 
 class RequestHandler(BaseHTTPRequestHandler):
     def send(self, status, body):
@@ -31,8 +32,17 @@ class RequestHandler(BaseHTTPRequestHandler):
             if len(kid) == 0:
                 return self.send(200, "Hello world!")
 
-            key = abmc._get_key_from_id(kid)
-            return self.send(200, key)
+            try:
+                if kid in key_cache:
+                    print("cached", kid)
+                    return self.send(200, key_cache[kid])
+                print("new", kid)
+                key = abmc._get_key_from_id(kid)
+                key_cache[kid] = key
+                return self.send(200, key)
+            except Exception as e:
+                print(e)
+                return self.send(400, 'Bad Request')
 
 def run():
     server = ('127.0.0.1', 8088)
