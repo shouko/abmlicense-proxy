@@ -3,9 +3,10 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from abm_helper import AbmClient
+from store import KeyStore
 
 abmc = AbmClient()
-key_cache = {}
+key_cache = KeyStore()
 
 class RequestHandler(BaseHTTPRequestHandler):
     def send(self, status, body):
@@ -33,13 +34,14 @@ class RequestHandler(BaseHTTPRequestHandler):
                 return self.send(200, "Hello world!")
 
             try:
-                if kid in key_cache:
+                cached = key_cache.get(kid)
+                if cached:
                     print("cached", kid)
-                    return self.send(200, key_cache[kid])
+                    return self.send(200, cached)
                 print("new", kid)
-                key = abmc._get_key_from_id(kid)
-                key_cache[kid] = key
-                return self.send(200, key)
+                key_payload = abmc._get_key_from_id(kid)
+                key_cache.set(kid, key_payload)
+                return self.send(200, key_payload)
             except Exception as e:
                 print(e)
 
